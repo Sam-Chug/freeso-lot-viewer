@@ -4,9 +4,22 @@ class LotObject{
         // Get arrays from lotData json
         this.objects = lotData.house.objects;
         this.walls = lotData.house.world.walls;
+
         this.floors = lotData.house.world.floors.floor;
+        this.floorCount = this.getFloorCount(this.floors);
 
         // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
+    }
+
+    getFloorCount(floors) {
+
+        let maxFloor = 0;
+        for (let i = 0; i < floors.length; i++) {
+
+            let floor = parseInt(floors[i]._level);
+            if (floor > maxFloor) maxFloor = floor;
+        }
+        return maxFloor + 1;
     }
 }
 
@@ -26,10 +39,33 @@ class LotCanvas{
         this.tileList = this.ripTilesFromTileSheet();
 
         this.setCanvasSize();
-        this.testSpriteSheet();
+        //this.testSpriteSheet();
         //this.draw();
     }
 
+    //#region Draw functions
+    setCanvasSize() {
+
+        this.canvas.width = this.tileSize * this.lotSize;
+        this.canvas.height = this.tileSize * this.lotSize;
+    }
+
+    draw() {
+
+        for (let x = 0; x < this.lotSize; x++) {
+            for (let y = 0; y < this.lotSize; y++) {
+
+                let xPos = x * this.tileSize;
+                let yPos = y * this.tileSize;
+
+                this.ctx.fillStyle = ((x + y) % 2 == 1) ? "gray" : "white";
+                this.ctx.fillRect(xPos, yPos, this.tileSize, this.tileSize);
+            }
+        }
+    }
+    //#endregion
+
+    //#region Build sprite variables
     ripTilesFromTileSheet() {
 
         // Build array of tile canvi
@@ -53,7 +89,9 @@ class LotCanvas{
         }
         return tileSheet;
     }
+    //#endregion
 
+    //#region Test functions
     testSpriteSheet() {
 
         for (let i = 0; i < this.tileList.length; i++) {
@@ -64,25 +102,6 @@ class LotCanvas{
             this.ctx.drawImage(this.tileList[i], drawX, drawY);
         }
     }
-
-    setCanvasSize() {
-
-        this.canvas.width = this.tileSize * this.lotSize;
-        this.canvas.height = this.tileSize * this.lotSize;
-    }
-
-    draw() {
-
-        for (let x = 0; x < this.lotSize; x++) {
-            for (let y = 0; y < this.lotSize; y++) {
-
-                let xPos = x * this.tileSize;
-                let yPos = y * this.tileSize;
-
-                this.ctx.fillStyle = ((x + y) % 2 == 1) ? "gray" : "white";
-                this.ctx.fillRect(xPos, yPos, this.tileSize, this.tileSize);
-            }
-        }
-    }
+    //#endregion
 }
 

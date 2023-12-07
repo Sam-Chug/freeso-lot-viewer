@@ -29,13 +29,6 @@ importUtils = function() {
     }
 }();
 
-houseUtils = function() {
-
-    return {
-        
-    }
-}();
-
 loadUtils = function() {
 
     async function loadImages(imageUrls) {
