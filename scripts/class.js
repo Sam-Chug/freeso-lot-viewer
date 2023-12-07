@@ -3,39 +3,33 @@ class LotObject{
 
         // Get arrays from lotData json
         this.objects = lotData.house.objects;
+        this.lotSize = parseInt(lotData.house.size);
         
         // Parse floor
         this.floors = this.parseFloor(lotData.house.world.floors.floor);
-        this.floorCount = this.getFloorCount(this.floors);
-        console.log(this.floors);
+        this.floorCount = this.getStoryCount(this.floors);
+        console.log(this.floors)
 
         // Parse wall
-        this.walls = this.parseWall(lotData.house.world.walls);
+        this.walls = this.parseWall(lotData.house.world.walls.wall);
+        console.log(this.walls);
 
+        this.lotRenderer = new LotRenderer(this);
         // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
     }
 
     //#region Floor
     parseFloor(floorList) {
 
-        for (let i = 0; i < floorList.length; i++) {
-
-            floorList[i]._level = parseInt(floorList[i]._level);
-            floorList[i]._x = parseInt(floorList[i]._x);
-            floorList[i]._y = parseInt(floorList[i]._y);
-            floorList[i]._value = parseInt(floorList[i]._value);
-        }
-        return floorList;
+        let floorObjects = new Array();
+        for (let i = 0; i < floorList.length; i++) floorObjects.push(new Floor(floorList[i]));
+        return floorObjects;
     }
 
-    getFloorCount(floors) {
+    getStoryCount(floors) {
 
         let maxFloor = 0;
-        for (let i = 0; i < floors.length; i++) {
-
-            let floor = floors[i]._level;
-            if (floor > maxFloor) maxFloor = floor;
-        }
+        for (let i = 0; i < floors.length; i++) if (floors[i].level > maxFloor) maxFloor = floors[i].level;
         return maxFloor + 1;
     }
     //#endregion
@@ -43,49 +37,53 @@ class LotObject{
     //#region Walls
     parseWall(wallList) {
 
-
+        let wallObjects = new Array();
+        for (let i = 0; i < wallList.length; i++) wallObjects.push(new Wall(wallList[i]));
+        return wallObjects;
     }
     //#endregion
 }
 
-class LotCanvas{
-    constructor() {
+class LotRenderer{
+    constructor(lotObject) {
 
         // Static variables
         this.canvas = document.getElementById("lot-canvas");
         this.ctx = this.canvas.getContext("2d");
 
         this.tileSize = 24;
-        this.lotSize = 64 + 2;
-
         this.sourceTileSize = 27;
 
         // Buildable variables
         this.tileList = this.ripTilesFromTileSheet();
 
+        // Settable variables
+        this.lotObject = lotObject;
+
         this.setCanvasSize();
+        this.drawFloors();
         //this.testSpriteSheet();
-        //this.draw();
     }
 
     //#region Draw functions
     setCanvasSize() {
 
-        this.canvas.width = this.tileSize * this.lotSize;
-        this.canvas.height = this.tileSize * this.lotSize;
+        this.canvas.width = this.tileSize * this.lotObject.lotSize;
+        this.canvas.height = this.tileSize * this.lotObject.lotSize;
     }
 
-    draw() {
+    drawFloors() {
 
-        for (let x = 0; x < this.lotSize; x++) {
-            for (let y = 0; y < this.lotSize; y++) {
+        for (let i = 0; i < this.lotObject.floors.length; i++) {
+            
+            let floor = this.lotObject.floors[i];
 
-                let xPos = x * this.tileSize;
-                let yPos = y * this.tileSize;
+            let floorSpriteIndex = FLOOR_KVP[floor.value];
+            console.log(floor.value, floorSpriteIndex);
+            let drawX = floor.x * this.tileSize;
+            let drawY = floor.y * this.tileSize;
 
-                this.ctx.fillStyle = ((x + y) % 2 == 1) ? "gray" : "white";
-                this.ctx.fillRect(xPos, yPos, this.tileSize, this.tileSize);
-            }
+            this.ctx.drawImage(this.tileList[floorSpriteIndex], drawX, drawY);
         }
     }
     //#endregion
@@ -117,6 +115,20 @@ class LotCanvas{
     //#endregion
 
     //#region Test functions
+    drawTest() {
+
+        for (let x = 0; x < this.lotSize; x++) {
+            for (let y = 0; y < this.lotSize; y++) {
+
+                let xPos = x * this.tileSize;
+                let yPos = y * this.tileSize;
+
+                this.ctx.fillStyle = ((x + y) % 2 == 1) ? "gray" : "white";
+                this.ctx.fillRect(xPos, yPos, this.tileSize, this.tileSize);
+            }
+        }
+    }
+
     testSpriteSheet() {
 
         for (let i = 0; i < this.tileList.length; i++) {
@@ -130,3 +142,42 @@ class LotCanvas{
     //#endregion
 }
 
+
+class Floor{
+    constructor(floorData) {
+
+        this.level = parseInt(floorData._level);
+        this.x = parseInt(floorData._x);
+        this.y = parseInt(floorData._y);
+        this.value = parseInt(floorData._value);
+    }
+}
+
+class Wall{
+    constructor(wallData) {
+
+        this.segments = wallData.Segments.split(" ");
+        this.segmentLength = parseInt(wallData._segments);
+
+        this.level = parseInt(wallData._level);
+        this.placement = parseInt(wallData._placement);
+
+        this.x = parseInt(wallData._x);
+        this.y = parseInt(wallData._y);
+        
+        this.wallDecor = {
+            
+            // Diagonal floor segments
+            tls: parseInt(wallData._tls),
+            trs: parseInt(wallData._trs),
+
+            // Wallpaper
+            tlp: parseInt(wallData._tlp),
+            trp: parseInt(wallData._trp),
+
+            // Has door?
+            blp: parseInt(wallData._blp),
+            brp: parseInt(wallData._brp),
+        }
+    }
+}
