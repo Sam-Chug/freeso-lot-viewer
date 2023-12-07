@@ -19,8 +19,10 @@ importUtils = function() {
                 let content = readerEvent.target.result;
                 let dom = parseXML(content);
                 let jsonString = xml2json(dom);
-                //let houseObject = JSON.parse(jsonString);
+                jsonString = jsonString.replace("undefined", "");
+                let houseObject = JSON.parse(jsonString);
                 console.log(jsonString);
+                console.log(houseObject)
             }
         }
     }
