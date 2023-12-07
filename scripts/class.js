@@ -1,27 +1,68 @@
 class LotObject{
     constructor(lotData) {
 
+        // Get arrays from lotData json
         this.objects = lotData.house.objects;
+        this.walls = lotData.house.world.walls;
+        this.floors = lotData.house.world.floors.floor;
 
-        this.world = lotData.house.world;
-        this.walls = this.world.walls;
-        this.floors = this.world.floors.floor;
+        // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
     }
 }
 
 class LotCanvas{
-    constructor(lotObject) {
+    constructor() {
 
-        this.lotObject = lotObject;
-
-        this.tileSize = 16;
-        this.lotSize = 64 + 2;
-
+        // Static variables
         this.canvas = document.getElementById("lot-canvas");
         this.ctx = this.canvas.getContext("2d");
 
+        this.tileSize = 24;
+        this.lotSize = 16 + 2;
+
+        this.sourceTileSize = 27;
+
+        // Buildable variables
+        this.tileList = this.ripTilesFromTileSheet();
+
         this.setCanvasSize();
-        this.draw();
+        this.testSpriteSheet();
+        //this.draw();
+    }
+
+    ripTilesFromTileSheet() {
+
+        // Build array of tile canvi
+        let sourceX = 0, sourceY = 0;
+        let tileSheet = new Array();
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 12; x++) {
+
+                let canvas = document.createElement("canvas");
+                canvas.width = this.tileSize;
+                canvas.height = this.tileSize;
+
+                let ctx = canvas.getContext("2d");
+                ctx.drawImage(SPRITESHEET_FLOOR, sourceX, sourceY, this.sourceTileSize, this.sourceTileSize, 0, 0, this.tileSize, this.tileSize);
+                tileSheet.push(canvas);
+
+                sourceX += this.sourceTileSize;
+            }
+            sourceX = 0;
+            sourceY += this.sourceTileSize;
+        }
+        return tileSheet;
+    }
+
+    testSpriteSheet() {
+
+        for (let i = 0; i < this.tileList.length; i++) {
+
+            let drawX = (i % 16) * this.tileSize;
+            let drawY = Math.floor(i / 16) * this.tileSize;
+
+            this.ctx.drawImage(this.tileList[i], drawX, drawY);
+        }
     }
 
     setCanvasSize() {

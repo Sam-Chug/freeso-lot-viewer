@@ -35,3 +35,38 @@ houseUtils = function() {
         
     }
 }();
+
+loadUtils = function() {
+
+    async function loadImages(imageUrls) {
+
+        const promiseArray = [];
+        const imageArray = [];
+    
+        for (let url of imageUrls) {
+    
+            promiseArray.push(new Promise(resolve => {
+    
+                const img = new Image();
+                img.onload = function() {
+    
+                    resolve();
+                }
+                img.src = url;
+                imageArray.push(img);
+            }));
+        }
+        await Promise.all(promiseArray);
+        return imageArray;
+    }
+    
+    async function loadAllImages() {
+    
+        let floorImages = await loadImages(HOUSE_SPRITES);
+        SPRITESHEET_FLOOR = floorImages[0];
+    }
+    
+    return {
+        loadAllImages: loadAllImages
+    }
+}();

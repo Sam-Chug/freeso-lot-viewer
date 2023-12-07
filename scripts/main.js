@@ -1,7 +1,8 @@
 var lotDataHolder;
 
-window.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("DOMContentLoaded", async e => {
 
+    await loadUtils.loadAllImages();
     lotViewerMain.start();
 });
 
