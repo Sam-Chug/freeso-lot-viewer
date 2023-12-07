@@ -15,12 +15,24 @@ importUtils = function() {
             let reader = new FileReader();
             reader.readAsText(file, "UTF-8");
             reader.onload = readerEvent => {
-            
+                
+                // TODO: error with empty lot file
                 let content = readerEvent.target.result;
+                content = content.replace('<!DOCTYPE house SYSTEM "blueprint.dtd">', "");
+
+                // Parse XML content
                 let dom = parseXML(content);
+                if (dom == null) return;
+
+                // Convert XML into json string
                 let jsonString = xml2json(dom);
+
+                // Replace undefineds, causes error otherwise
                 jsonString = jsonString.replace("undefined", "");
+
+                // Convert json string to json
                 let houseObject = JSON.parse(jsonString);
+                
                 console.log(jsonString);
                 console.log(houseObject)
             }
