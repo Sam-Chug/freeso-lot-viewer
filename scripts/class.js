@@ -3,12 +3,29 @@ class LotObject{
 
         // Get arrays from lotData json
         this.objects = lotData.house.objects;
-        this.walls = lotData.house.world.walls;
-
-        this.floors = lotData.house.world.floors.floor;
+        
+        // Parse floor
+        this.floors = this.parseFloor(lotData.house.world.floors.floor);
         this.floorCount = this.getFloorCount(this.floors);
+        console.log(this.floors);
+
+        // Parse wall
+        this.walls = this.parseWall(lotData.house.world.walls);
 
         // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
+    }
+
+    //#region Floor
+    parseFloor(floorList) {
+
+        for (let i = 0; i < floorList.length; i++) {
+
+            floorList[i]._level = parseInt(floorList[i]._level);
+            floorList[i]._x = parseInt(floorList[i]._x);
+            floorList[i]._y = parseInt(floorList[i]._y);
+            floorList[i]._value = parseInt(floorList[i]._value);
+        }
+        return floorList;
     }
 
     getFloorCount(floors) {
@@ -16,11 +33,19 @@ class LotObject{
         let maxFloor = 0;
         for (let i = 0; i < floors.length; i++) {
 
-            let floor = parseInt(floors[i]._level);
+            let floor = floors[i]._level;
             if (floor > maxFloor) maxFloor = floor;
         }
         return maxFloor + 1;
     }
+    //#endregion
+
+    //#region Walls
+    parseWall(wallList) {
+
+
+    }
+    //#endregion
 }
 
 class LotCanvas{
