@@ -10,7 +10,7 @@ lotViewerMain = function() {
     function start() {
 
         console.log("Starting Lot Viewer");
-        //let lotCanvas = new LotCanvas();
+        let lotCanvas = new LotCanvas();
     }
 
     return {
