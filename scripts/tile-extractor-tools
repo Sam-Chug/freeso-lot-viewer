@@ -1,17 +1,19 @@
-const TILE_IMAGES = [
-    new Image().src = `./images/floor-tiles/floor-page-1.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-2.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-3.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-4.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-5.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-6.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-7.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-8.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-9.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-10.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-11.bmp`,
-    new Image().src = `./images/floor-tiles/floor-page-12.bmp`,
-];
+// This is all deprecated, but it helped rip a spritesheet of all floors, rotated from isometric to top-down square
+
+// const TILE_IMAGES = [
+//     new Image().src = `./images/floor-tiles/floor-page-1.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-2.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-3.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-4.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-5.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-6.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-7.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-8.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-9.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-10.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-11.bmp`,
+//     new Image().src = `./images/floor-tiles/floor-page-12.bmp`,
+// ];
 
 class TileExtractor{
     constructor() {
