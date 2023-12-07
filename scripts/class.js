@@ -18,7 +18,7 @@ class LotCanvas{
         this.ctx = this.canvas.getContext("2d");
 
         this.tileSize = 24;
-        this.lotSize = 16 + 2;
+        this.lotSize = 64 + 2;
 
         this.sourceTileSize = 27;
 
