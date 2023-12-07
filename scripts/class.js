@@ -4,3 +4,10 @@ class LotObject{
         
     }
 }
+
+class LotCanvas{
+    constructor(lotObject) {
+
+        this.lotObject = lotObject;
+    }
+}

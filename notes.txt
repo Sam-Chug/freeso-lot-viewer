@@ -1,0 +1,3 @@
+TODO:
+    - Remove top bar
+        - Put all controls in sidebar next to lot view

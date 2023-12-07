@@ -30,13 +30,35 @@
         <link href="styles/style.css?v0.1.0a" rel="stylesheet"/>
         <script defer src="./scripts/xml2json.js?v0.1.0a"></script>
         <script defer src="./scripts/class.js?v0.1.0a"></script>
+        <script defer src="./scripts/function.js?v0.1.0a"></script>
         <script defer src="./scripts/definitions.js?v0.1.0a"></script>
         <script defer src="./scripts/main.js?v0.1.0a"></script>
 
     </head>
     <body>
 
-        <canvas id="lot-canvas" class="lot-canvas"></canvas>
+        <!-- controls for import and lot title or something goes here -->
+        <div class="control-bar-container">
 
+            <button class="import-button" onclick="importUtils.importXMLFile()">
+                <div class="import-button-container"></div>
+            </button>
+            
+        </div>
+
+        <div class="lot-view-container">
+
+            <div class="control-sidebar-container">
+
+                <!-- lot search controls, breakdown stuff etc goes here -->
+            </div>
+
+            <div class="lot-image-container">
+
+                <!-- image of lot -->
+                <canvas id="lot-canvas" class="lot-canvas"></canvas>
+
+            </div>
+        </div>
     </body>
 </html>
