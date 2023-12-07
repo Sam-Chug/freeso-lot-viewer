@@ -5,14 +5,14 @@ class LotObject{
         this.objects = lotData.house.objects;
         this.lotSize = parseInt(lotData.house.size);
         
-        // Parse floor
-        this.floors = this.parseFloor(lotData.house.world.floors.floor);
-        this.floorCount = this.getStoryCount(this.floors);
-        console.log(this.floors)
+        // Parse floors/walls
+        this.floorData = this.parseFloor(lotData.house.world.floors.floor);
+        this.wallData = this.parseWall(lotData.house.world.walls.wall);
+        
+        // Separate floors
+        this.floorCount = this.getStoryCount(this.floorData, this.wallData);
+        this.separateFloors();
 
-        // Parse wall
-        this.walls = this.parseWall(lotData.house.world.walls.wall);
-        console.log(this.walls);
 
         this.lotRenderer = new LotRenderer(this);
         // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
@@ -26,32 +26,51 @@ class LotObject{
         return floorObjects;
     }
 
-    getStoryCount(floors) {
-
-        let maxFloor = 0;
-        for (let i = 0; i < floors.length; i++) if (floors[i].level > maxFloor) maxFloor = floors[i].level;
-        return maxFloor + 1;
-    }
-    //#endregion
-
-    //#region Walls
     parseWall(wallList) {
 
         let wallObjects = new Array();
+        if (!Array.isArray(wallList)) return wallObjects;
         for (let i = 0; i < wallList.length; i++) wallObjects.push(new Wall(wallList[i]));
         return wallObjects;
     }
-    //#endregion
+
+    getStoryCount(floors, walls) {
+
+        let maxFloor = 0;
+        for (let i = 0; i < floors.length; i++) if (floors[i].level > maxFloor) maxFloor = floors[i].level;
+        for (let i = 0; i < walls.length; i++) if (walls[i].level > maxFloor) maxFloor = walls[i].level;
+        return maxFloor + 1;
+    }
+
+    separateFloors() {
+
+        this.floors = new Array(this.floorCount).fill().map(() => Array());
+        this.walls = new Array(this.floorCount).fill().map(() => Array());
+
+        for (let i = 0; i < this.floorData.length; i++) {
+
+            let floor = this.floorData[i];
+            this.floors[floor.level].push(floor);
+        }
+
+        for (let i = 0; i < this.wallData.length; i++) {
+
+            let wall = this.wallData[i];
+            this.walls[wall.level].push(wall);
+        }
+    }
 }
 
 class LotRenderer{
     constructor(lotObject) {
 
+        // TODO: Create array of canvi for each floor
+
         // Static variables
         this.canvas = document.getElementById("lot-canvas");
         this.ctx = this.canvas.getContext("2d");
 
-        this.tileSize = 24;
+        this.tileSize = 27;
         this.sourceTileSize = 27;
 
         // Buildable variables
@@ -60,9 +79,12 @@ class LotRenderer{
         // Settable variables
         this.lotObject = lotObject;
 
+        // Draw lot
+        console.time("Drawing Lot");
         this.setCanvasSize();
+        this.drawEnvironment();
         this.drawFloors();
-        //this.testSpriteSheet();
+        console.timeEnd("Drawing Lot");
     }
 
     //#region Draw functions
@@ -72,14 +94,26 @@ class LotRenderer{
         this.canvas.height = this.tileSize * this.lotObject.lotSize;
     }
 
+    drawEnvironment() {
+
+        for (let i = 0; i < this.lotObject.lotSize; i++) {
+            for (let j = 0; j < this.lotObject.lotSize; j++) {
+
+                let drawX = i * this.tileSize;
+                let drawY = j * this.tileSize;
+
+                this.ctx.drawImage(this.tileList[231], drawX, drawY, this.tileSize, this.tileSize);
+            }
+        }
+    }
+
     drawFloors() {
 
-        for (let i = 0; i < this.lotObject.floors.length; i++) {
+        for (let i = 0; i < this.lotObject.floors[0].length; i++) {
             
-            let floor = this.lotObject.floors[i];
+            let floor = this.lotObject.floors[0][i];
 
             let floorSpriteIndex = FLOOR_KVP[floor.value];
-            console.log(floor.value, floorSpriteIndex);
             let drawX = floor.x * this.tileSize;
             let drawY = floor.y * this.tileSize;
 

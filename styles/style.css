@@ -13,6 +13,7 @@ body {
 
 * {
     border: 3px solid black;
+    background-color: seagreen;
 }
 
 .control-bar-container {
