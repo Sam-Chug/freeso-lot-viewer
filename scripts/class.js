@@ -1,27 +1,30 @@
 class LotObject{
     constructor(lotData) {
 
-        // Get arrays from lotData json
-        this.objects = lotData.house.objects;
+        // Parse lot construction
         this.lotSize = parseInt(lotData.house.size);
-        
-        // Parse floors/walls
+        this.furnitureData = this.parseObject(lotData.house.objects.object);
         this.floorData = this.parseFloor(lotData.house.world.floors.floor);
         this.wallData = this.parseWall(lotData.house.world.walls.wall);
         
-        // Separate floors
-        this.floorCount = this.getStoryCount(this.floorData, this.wallData);
+        // Separate stories
+        this.storyCount = this.getStoryCount(this.floorData, this.wallData, this.furnitureData);
+        this.stories = new Array(this.storyCount);
+        for (let i = 0; i < this.storyCount; i++) this.stories[i] = new LotStory();
         this.separateFloors();
 
-
+        // Send lot data to lot renderer
         this.lotRenderer = new LotRenderer(this);
-        // Next, build compressed list of every wall coordinate pair, floor coordinate and id, object coordinate and id
+
+        // Debug lot object
+        console.log(this, lotData);
     }
 
-    //#region Floor
+    //#region Parse lot object
     parseFloor(floorList) {
 
         let floorObjects = new Array();
+        if (!Array.isArray(floorList)) return floorObjects;
         for (let i = 0; i < floorList.length; i++) floorObjects.push(new Floor(floorList[i]));
         return floorObjects;
     }
@@ -34,31 +37,44 @@ class LotObject{
         return wallObjects;
     }
 
-    getStoryCount(floors, walls) {
+    parseObject(furnitureList) {
+
+        let furnitureObjects = new Array();
+        if (!Array.isArray(furnitureList)) return furnitureObjects;
+        for (let i = 0; i < furnitureList.length; i++) furnitureObjects.push(new Furniture(furnitureList[i]));
+        return furnitureObjects;
+    }
+
+    getStoryCount(floors, walls, furniture) {
 
         let maxFloor = 0;
         for (let i = 0; i < floors.length; i++) if (floors[i].level > maxFloor) maxFloor = floors[i].level;
         for (let i = 0; i < walls.length; i++) if (walls[i].level > maxFloor) maxFloor = walls[i].level;
+        for (let i = 0; i < furniture.length; i++) if (furniture[i].level > maxFloor) maxFloor = furniture[i].level;
         return maxFloor + 1;
     }
 
     separateFloors() {
 
-        this.floors = new Array(this.floorCount).fill().map(() => Array());
-        this.walls = new Array(this.floorCount).fill().map(() => Array());
-
         for (let i = 0; i < this.floorData.length; i++) {
 
             let floor = this.floorData[i];
-            this.floors[floor.level].push(floor);
+            this.stories[floor.level].floors.push(floor);
         }
 
         for (let i = 0; i < this.wallData.length; i++) {
 
             let wall = this.wallData[i];
-            this.walls[wall.level].push(wall);
+            this.stories[wall.level].walls.push(wall);
+        }
+
+        for (let i = 0; i < this.furnitureData.length; i++) {
+
+            let object = this.furnitureData[i];
+            this.stories[object.level].objects.push(object);
         }
     }
+    //#endregion
 }
 
 class LotRenderer{
@@ -109,9 +125,9 @@ class LotRenderer{
 
     drawFloors() {
 
-        for (let i = 0; i < this.lotObject.floors[0].length; i++) {
+        for (let i = 0; i < this.lotObject.stories[0].floors.length; i++) {
             
-            let floor = this.lotObject.floors[0][i];
+            let floor = this.lotObject.stories[0].floors[i];
 
             let floorSpriteIndex = FLOOR_KVP[floor.value];
             let drawX = floor.x * this.tileSize;
@@ -176,6 +192,27 @@ class LotRenderer{
     //#endregion
 }
 
+class LotStory{
+    constructor() {
+
+        this.walls = new Array();
+        this.floors = new Array();
+        this.objects = new Array();
+    }
+}
+
+class Furniture{
+    constructor(furnitureData) {
+
+        this.guid = parseInt(furnitureData._guid);
+        this.group = parseInt(furnitureData._group);
+        
+        this.x = parseInt(furnitureData._x);
+        this.y = parseInt(furnitureData._y);
+        this.dir = parseInt(furnitureData._dir);
+        this.level = parseInt(furnitureData._level);
+    }
+}
 
 class Floor{
     constructor(floorData) {
