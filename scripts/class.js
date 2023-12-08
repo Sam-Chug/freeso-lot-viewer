@@ -238,17 +238,15 @@ class Wall{
         
         this.wallDecor = {
             
-            // Diagonal floor segments
-            tls: parseInt(wallData._tls),
-            trs: parseInt(wallData._trs),
-
             // Wallpaper
-            tlp: parseInt(wallData._tlp),
-            trp: parseInt(wallData._trp),
+            paperRight: parseInt(wallData._tls),
+            paperLeft: parseInt(wallData._trs),
 
-            // Has door?
-            blp: parseInt(wallData._blp),
-            brp: parseInt(wallData._brp),
-        }
+            // Partial floors
+            floorTopRight: parseInt(wallData._trp),
+            floorTopLeft: parseInt(wallData._tlp),
+            floorBottomRight: parseInt(wallData._brp),
+            floorBottomLeft: parseInt(wallData._blp)
+        };
     }
 }
