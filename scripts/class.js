@@ -184,7 +184,6 @@ class LotRenderer{
             sourceX = 0;
             sourceY += this.sourceTileSize;
         }
-        console.log(tileSheet)
         return tileSheet;
     }
 
@@ -291,16 +290,17 @@ class Wall{
 
         this.wallDecor = {
             
-            // Wallpaper
-            paperRight: parseInt(wallData._tls),
-            paperLeft: parseInt(wallData._trs),
-
             // Partial floors
             floorTopRight: parseInt(wallData._trp),
             floorTopLeft: parseInt(wallData._tlp),
             floorBottomRight: parseInt(wallData._brp),
-            floorBottomLeft: parseInt(wallData._blp)
+            floorBottomLeft: parseInt(wallData._blp),
+
+            // Wallpaper
+            paperRight: parseInt(wallData._tls),
+            paperLeft: parseInt(wallData._trs)
         };
+        console.log(this.wallDecor);
     }
 
 }
