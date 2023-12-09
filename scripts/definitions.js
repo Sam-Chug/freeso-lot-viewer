@@ -1,3 +1,7 @@
+//#region Constants
+const TILE_SIZE = 27;
+//#endregion
+
 //#region Floor id lookup
 const FLOOR_KVP = {
     // ty sims 1 and original tso programmers

@@ -86,8 +86,8 @@ class LotRenderer{
         this.canvas = document.getElementById("lot-canvas");
         this.ctx = this.canvas.getContext("2d");
 
-        this.tileSize = 27;
-        this.sourceTileSize = 27;
+        this.tileSize = TILE_SIZE;
+        this.sourceTileSize = TILE_SIZE;
 
         // Buildable variables
         this.tileList = this.ripTilesFromTileSheet();
@@ -118,7 +118,7 @@ class LotRenderer{
                 let drawX = i * this.tileSize;
                 let drawY = j * this.tileSize;
 
-                this.ctx.drawImage(this.tileList[231], drawX, drawY, this.tileSize, this.tileSize);
+                this.ctx.drawImage(this.tileList[231][0], drawX, drawY, this.tileSize, this.tileSize);
             }
         }
     }
@@ -133,12 +133,13 @@ class LotRenderer{
             let drawX = floor.x * this.tileSize;
             let drawY = floor.y * this.tileSize;
 
-            this.ctx.drawImage(this.tileList[floorSpriteIndex], drawX, drawY);
+            this.ctx.drawImage(this.tileList[floorSpriteIndex][0], drawX, drawY);
         }
     }
     //#endregion
 
     //#region Build sprite variables
+    // TODO: Move this to another class
     ripTilesFromTileSheet() {
 
         // Build array of tile canvi
@@ -147,20 +148,52 @@ class LotRenderer{
         for (let y = 0; y < 20; y++) {
             for (let x = 0; x < 12; x++) {
 
-                let canvas = document.createElement("canvas");
-                canvas.width = this.tileSize;
-                canvas.height = this.tileSize;
+                let tileStates = new Array(5);
 
-                let ctx = canvas.getContext("2d");
+                // Create main, full-tile canvas
+                let fullTile = document.createElement("canvas");
+                fullTile.width = this.tileSize;
+                fullTile.height = this.tileSize;
+
+                let ctx = fullTile.getContext("2d");
                 ctx.drawImage(SPRITESHEET_FLOOR, sourceX, sourceY, this.sourceTileSize, this.sourceTileSize, 0, 0, this.tileSize, this.tileSize);
-                tileSheet.push(canvas);
+                tileStates[0] = fullTile;
 
+                // Create partial, half-tile canvi
+                for (let i = 0; i < 4; i++) {
+
+                    let slicePath = this.getPartialTilePath(i);
+
+                    let partialTile = document.createElement("canvas");
+                    let partialCtx = partialTile.getContext("2d");
+                    partialTile.width = this.tileSize;
+                    partialTile.height = this.tileSize;
+
+                    partialCtx.beginPath();
+                    partialCtx.moveTo(slicePath[0], slicePath[1]);
+                    for (let i = 1; i < slicePath.length / 2; i++) partialCtx.lineTo(slicePath[i * 2], slicePath[(i * 2) + 1]);
+                    partialCtx.clip();
+                    partialCtx.drawImage(fullTile, 0, 0);
+
+                    tileStates[i + 1] = partialTile;
+                }
+
+                tileSheet.push(tileStates);
                 sourceX += this.sourceTileSize;
             }
             sourceX = 0;
             sourceY += this.sourceTileSize;
         }
+        console.log(tileSheet)
         return tileSheet;
+    }
+
+    getPartialTilePath(pathIndex) {
+
+        if      (pathIndex == 0) return [0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE, 0];
+        else if (pathIndex == 1) return [0, 0, 0, TILE_SIZE, TILE_SIZE, 0];
+        else if (pathIndex == 2) return [0, 0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE];
+        else if (pathIndex == 3) return [0, TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, 0];
     }
     //#endregion
 
@@ -181,12 +214,17 @@ class LotRenderer{
 
     testSpriteSheet() {
 
+        this.canvas.width = 1000;
+        this.canvas.height = 3000;
+
         for (let i = 0; i < this.tileList.length; i++) {
+            for (let j = 0; j < this.tileList[i].length; j++) {
 
-            let drawX = (i % 16) * this.tileSize;
-            let drawY = Math.floor(i / 16) * this.tileSize;
+                let drawX = j * this.tileSize;
+                let drawY = i * this.tileSize;
 
-            this.ctx.drawImage(this.tileList[i], drawX, drawY);
+                this.ctx.drawImage(this.tileList[i][j], drawX, drawY);
+            }
         }
     }
     //#endregion
@@ -227,15 +265,30 @@ class Floor{
 class Wall{
     constructor(wallData) {
 
-        this.segments = wallData.Segments.split(" ");
-        this.segmentLength = parseInt(wallData._segments);
+        this.x = parseInt(wallData._x);
+        this.y = parseInt(wallData._y);
 
         this.level = parseInt(wallData._level);
         this.placement = parseInt(wallData._placement);
 
-        this.x = parseInt(wallData._x);
-        this.y = parseInt(wallData._y);
-        
+        // Decimal representation of wall direction bits
+        // 1    Top Left
+        // 2    Top Right
+        // 4    Bottom Right
+        // 8    Bottom Left
+        // 16   HorizontalDiag
+        // 32   VerticalDiag
+        this.segmentLength = parseInt(wallData._segments).toString(2);
+        this.segmentLength = parseInt("0".repeat(6 - this.segmentLength.length) + this.segmentLength);
+
+        // A row of walls have single points that lead into the next
+        // A single wall has two points that face eachother
+        //  - Top Right and Bottom Left
+        //  - Top Left and Bottom Right
+
+        // String representation of wall direction
+        this.segments = wallData.Segments.split(" ");
+
         this.wallDecor = {
             
             // Wallpaper
@@ -249,4 +302,5 @@ class Wall{
             floorBottomLeft: parseInt(wallData._blp)
         };
     }
+
 }

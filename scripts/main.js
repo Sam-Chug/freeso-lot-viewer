@@ -13,7 +13,7 @@ window.addEventListener("DOMContentLoaded", async e => {
 lotViewerMain = function() {
 
     function start() {
-
+        
     }
 
     return {
